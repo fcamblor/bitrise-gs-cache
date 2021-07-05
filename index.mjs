@@ -3,11 +3,11 @@ let CONFIG = {
     bucketUrl: undefined,
     branch: undefined
 };
-export function currentArgs() {
+export function currentArgs(process) {
     return process.argv.slice(process.argv.findIndex(arg => arg.endsWith("zx")) + 2);
 }
 export function config(process) {
-    const args = currentArgs();
+    const args = currentArgs(process);
     CONFIG = {
         bucketUrl: stripSlash(args[0]),
         branch: args[1]
