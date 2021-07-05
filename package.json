@@ -1,0 +1,14 @@
+{
+  "name": "bitrise-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "fcamblor",
+  "license": "MIT",
+  "dependencies": {
+    "zx": "2.0.0"
+  }
+}
