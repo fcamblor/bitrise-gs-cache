@@ -117,7 +117,7 @@ yargs(hideBin(process.argv))
 
             await cacheableCommand(coords, {
                 compressContent: compressed,
-                checksumCommand: () => $`md5 "${argv["checksum-file"]}"`,
+                checksumCommand: () => $`md5 -q "${argv["checksum-file"]}"`,
                 cachedPaths: argv["directories"] as string[]
             }, () => {
                 const [command, ...args] = argv["cacheable-command"].split(" ");
