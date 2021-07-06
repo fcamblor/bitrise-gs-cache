@@ -2,7 +2,7 @@
   "name": "bitrise-gs-cache",
   "version": "1.0.0",
   "description": "",
-  "main": "index.mjs",
+  "main": "index.js",
   "scripts": {
     "build": "tsc --target esnext --lib esnext --module esnext --moduleResolution node cli.ts"
   },
