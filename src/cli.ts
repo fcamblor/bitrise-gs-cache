@@ -16,7 +16,6 @@ const cacheCoordsOptions: Record<CoordsKeys, Options> = {
     },
     'branch': {
         type: 'string',
-        demandOption: true,
         describe: 'cache branch name'
     },
     'cache-name': {
@@ -29,7 +28,7 @@ const cacheCoordsOptions: Record<CoordsKeys, Options> = {
 function coordsFromOpts(argv: {[key in CoordsKeys]: string|unknown}): CacheCoordinates {
     return {
         bucketUrl: argv["bucket-url"] as string,
-        branch: argv["branch"] as string,
+        branch: (argv["branch"] || 'unknown-branch') as string,
         cacheName: argv["cache-name"] as string
     };
 }
