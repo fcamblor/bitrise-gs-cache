@@ -10,6 +10,8 @@ yargs(hideBin(process.argv))
         'key-config': { type: 'string', demandOption: true, describe: 'url from where to download your account service key' }
     }),
     async (argv) => {
-        console.log(`yay ${argv["key-config"]}`)
-        await $`echo 'hello'`
+        const tmpLocalFile = `/tmp/google-service-account.json`;
+        await $`curl -sSL ${argv["key-config"]} > ${tmpLocalFile}`
+        await $`gcloud auth activate-service-account -q --key-file ${tmpLocalFile}`
+        await $`rm -f ${tmpLocalFile}`
     }).help().argv
