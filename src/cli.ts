@@ -3,8 +3,8 @@
 import 'zx'
 import {hideBin} from "yargs/helpers";
 import yargs, {Options} from "yargs";
-import {CacheCoordinates, CachePersistor} from "./CachePersistor";
-import {cacheableCommand} from "./cacheableCommand";
+import {CacheCoordinates, CachePersistor} from "./CachePersistor.js";
+import {cacheableCommand} from "./cacheableCommand.js";
 
 
 type CoordsKeys = "bucket-url"|"branch"|"cache-name";

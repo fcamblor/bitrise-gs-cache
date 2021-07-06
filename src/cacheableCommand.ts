@@ -1,5 +1,5 @@
 import {ProcessOutput, ProcessPromise} from "zx";
-import {CacheCoordinates, CacheMetadata, CachePersistor} from "./CachePersistor";
+import {CacheCoordinates, CacheMetadata, CachePersistor} from "./CachePersistor.js";
 
 export type CacheableCommandOptions = {
     cachedPaths: string[],
