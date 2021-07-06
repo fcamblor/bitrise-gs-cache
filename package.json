@@ -1,14 +1,20 @@
 {
-  "name": "bitrise-scripts",
+  "name": "bitrise-gs-cache",
   "version": "1.0.0",
   "description": "",
   "main": "index.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc --target esnext --lib esnext --module esnext --moduleResolution node cli.ts"
   },
   "author": "fcamblor",
   "license": "MIT",
+  "bin": {
+    "bitrise-gs-cache": "./cli.js"
+  },
   "dependencies": {
     "zx": "2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "4.3.5"
   }
 }
