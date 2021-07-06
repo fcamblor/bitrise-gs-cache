@@ -1,8 +1,13 @@
 import {ProcessOutput, ProcessPromise} from "zx";
 
-let CONFIG = {
-    bucketUrl: undefined,
-    branch: undefined
+type Config = {
+    bucketUrl: string,
+    branch: string
+};
+
+let CONFIG: Config = {
+    bucketUrl: "bucket-to-be-defined",
+    branch: "branch-to-be-defined"
 };
 
 export function currentArgs(process: NodeJS.Process) {
@@ -68,7 +73,7 @@ class CompressedCachePersistor extends CachePersistor {
 }
 
 export async function cacheableCommand(opts: CacheableCommandOptions, commandIfOutdatedCache: () => ProcessPromise<ProcessOutput>) {
-    let cacheMetadata: CacheMetadata = { checksum: undefined, compressed: opts.compressContent }, expectedChecksum = undefined;
+    let cacheMetadata: CacheMetadata = { checksum: undefined, compressed: !!opts.compressContent }, expectedChecksum = undefined;
     try {
         const metadataContent = await $`gsutil cat ${CachePersistor.jsonMetadataUrlFor(CONFIG.bucketUrl, CONFIG.branch, opts.cacheName)} 2> /dev/null`
         cacheMetadata = JSON.parse(metadataContent.stdout.trim());
@@ -105,7 +110,7 @@ export async function cacheableCommand(opts: CacheableCommandOptions, commandIfO
 
         cacheMetadata = {
             checksum: expectedChecksum,
-            compressed: opts.compressContent
+            compressed: !!opts.compressContent
         };
 
         await $`echo ${JSON.stringify(cacheMetadata)} > /tmp/metadata`

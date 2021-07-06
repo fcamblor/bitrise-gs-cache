@@ -2,14 +2,15 @@
   "name": "bitrise-gs-cache",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "build/cli.js",
+  "type": "module",
   "scripts": {
-    "build": "tsc --target esnext --lib esnext --module esnext --moduleResolution node cli.ts"
+    "build": "tsc -p ."
   },
   "author": "fcamblor",
   "license": "MIT",
   "bin": {
-    "bitrise-gs-cache": "./cli.js"
+    "bitrise-gs-cache": "./build/cli.js"
   },
   "dependencies": {
     "yargs": "17.0.1",
