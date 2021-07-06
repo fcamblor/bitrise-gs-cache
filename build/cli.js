@@ -16,6 +16,8 @@ yargs(hideBin(process.argv))
     .command(["auth"], 'authenticates against your gcs bucket', (yargs) => yargs.options({
     'key-config': { type: 'string', demandOption: true, describe: 'url from where to download your account service key' }
 }), (argv) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(`yay ${argv["key-config"]}`);
-    yield $ `echo 'hello'`;
+    const tmpLocalFile = `/tmp/google-service-account.json`;
+    yield $ `curl -sSL ${argv["key-config"]} > ${tmpLocalFile}`;
+    yield $ `gcloud auth activate-service-account -q --key-file ${tmpLocalFile}`;
+    yield $ `rm -f ${tmpLocalFile}`;
 })).help().argv;
