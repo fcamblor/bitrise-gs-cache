@@ -1,4 +1,4 @@
-#!/usr/bin/env zx
+#!/usr/bin/env node
 
 import {ProcessOutput, ProcessPromise} from "zx";
 
