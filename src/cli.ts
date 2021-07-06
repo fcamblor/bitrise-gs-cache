@@ -63,7 +63,7 @@ yargs(hideBin(process.argv))
 
             await Promise.all((argv["directories"] as string[]).map(dir => {
                 console.log(`Storing ${dir} into cache:${coords.cacheName}`)
-                return cachePersistor.pushCache(coords, dir);
+                return cachePersistor.pushCache(coords, dir, dir);
             }));
             await CachePersistor.storeCacheMetadata(coords, {
                 compressed,

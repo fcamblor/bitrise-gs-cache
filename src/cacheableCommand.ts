@@ -38,7 +38,7 @@ export async function cacheableCommand(coords: CacheCoordinates, opts: Cacheable
 
         await commandIfOutdatedCache();
 
-        await Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.pushCache(coords, cachedPath)))
+        await Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.pushCache(coords, cachedPath, cachedPath)))
         await CachePersistor.storeCacheMetadata(coords, {
             checksum: expectedChecksum,
             compressed: !!opts.compressContent

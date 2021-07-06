@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { CachePersistor } from "./CachePersistor.js";
+import { CachePersistor } from "./CachePersistor";
 export function cacheableCommand(coords, opts, commandIfOutdatedCache) {
     return __awaiter(this, void 0, void 0, function* () {
         let cacheMetadata = undefined, expectedChecksum = undefined;
@@ -34,7 +34,7 @@ export function cacheableCommand(coords, opts, commandIfOutdatedCache) {
             console.info(`${opts.checksumCommand ? 'Detected checksum change, u' : 'U'}pdating cache...`);
             yield cachePersistor.deleteCache(coords);
             yield commandIfOutdatedCache();
-            yield Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.pushCache(coords, cachedPath)));
+            yield Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.pushCache(coords, cachedPath, cachedPath)));
             yield CachePersistor.storeCacheMetadata(coords, {
                 checksum: expectedChecksum,
                 compressed: !!opts.compressContent

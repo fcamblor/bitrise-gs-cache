@@ -48,9 +48,9 @@ export class CachePersistor {
             catch (e) { }
         });
     }
-    pushCache(coords, cachedPath) {
+    pushCache(coords, path, pathName) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield $ `gsutil -m rsync -r ${cachedPath} ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${cachedPath}`;
+            yield $ `gsutil -m rsync -r ${path} ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${pathName}`;
         });
     }
 }
@@ -73,12 +73,12 @@ export class CompressedCachePersistor extends CachePersistor {
             catch (e) { }
         });
     }
-    pushCache(coords, cachedPath) {
+    pushCache(coords, path, pathName) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`Compressing path ${cachedPath} prior to sending it into the cache...`);
-            yield $ `tar -czf /tmp/${cachedPath}.tar.gz ${cachedPath}`;
-            yield $ `gsutil cp /tmp/${cachedPath}.tar.gz ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${cachedPath}.tar.gz`;
-            yield $ `rm -rf /tmp/${cachedPath}.tar.gz`;
+            console.log(`Compressing path ${path} (named ${pathName}) prior to sending it into the cache...`);
+            yield $ `tar -czf /tmp/${pathName}.tar.gz ${path}`;
+            yield $ `gsutil cp /tmp/${pathName}.tar.gz ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${pathName}.tar.gz`;
+            yield $ `rm -rf /tmp/${pathName}.tar.gz`;
         });
     }
 }

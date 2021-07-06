@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import 'zx';
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
-import { CachePersistor } from "./CachePersistor.js";
-import { cacheableCommand } from "./cacheableCommand.js";
+import { CachePersistor } from "./CachePersistor";
+import { cacheableCommand } from "./cacheableCommand";
 const cacheCoordsOptions = {
     'bucket-url': {
         type: 'string',
@@ -58,7 +58,7 @@ yargs(hideBin(process.argv))
     const cachePersistor = CachePersistor.compressed(compressed);
     yield Promise.all(argv["directories"].map(dir => {
         console.log(`Storing ${dir} into cache:${coords.cacheName}`);
-        return cachePersistor.pushCache(coords, dir);
+        return cachePersistor.pushCache(coords, dir, dir);
     }));
     yield CachePersistor.storeCacheMetadata(coords, {
         compressed,
@@ -94,7 +94,7 @@ yargs(hideBin(process.argv))
     const compressed = !argv["skip-compress"];
     yield cacheableCommand(coords, {
         compressContent: compressed,
-        checksumCommand: () => $ `md5 "${argv["checksum-file"]}"`,
+        checksumCommand: () => $ `md5 -q "${argv["checksum-file"]}"`,
         cachedPaths: argv["directories"]
     }, () => {
         const [command, ...args] = argv["cacheable-command"].split(" ");
