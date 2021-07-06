@@ -61,14 +61,22 @@ yargs(hideBin(process.argv))
             let compressed = !argv["skip-compress"];
             const cachePersistor = CachePersistor.compressed(compressed);
 
-            await Promise.all((argv["directories"] as string[]).map(dir => {
-                console.log(`Storing ${dir} into cache:${coords.cacheName}`)
-                return cachePersistor.pushCache(coords, dir, dir);
+            const directories = (argv["directories"] || []) as string[];
+            const synchronizeAll = !directories.length;
+            const namedCachedPaths: {pathName: string, path: string}[] = synchronizeAll
+                ?[{pathName: "__all__", path: "."}]
+                :directories.map(dir => ({pathName: dir, path: dir}));
+
+            await Promise.all(namedCachedPaths.map(ncp => {
+                console.log(`Storing ${ncp.pathName} into cache:${coords.cacheName}`)
+                return cachePersistor.pushCache(coords, ncp.path, ncp.pathName);
             }));
+
             await CachePersistor.storeCacheMetadata(coords, {
                 compressed,
                 // No need to provide any checksum when storing non-cacheable fs
-                checksum: undefined
+                checksum: undefined,
+                all: synchronizeAll
             });
 
             console.log(`Directories stored in cache !`)
@@ -87,9 +95,15 @@ yargs(hideBin(process.argv))
 
             const cachePersistor = CachePersistor.compressed(cacheMetadata.compressed);
 
-            await Promise.all((argv["directories"] as string[]).map(dir => {
-                console.log(`Loading ${dir} from cache:${coords.cacheName}`)
-                return cachePersistor.loadCache(coords, dir);
+            const directories = (argv["directories"] || []) as string[];
+            const namedCachedPaths: {pathName: string, path: string}[] = cacheMetadata.all
+                ?[{pathName: "__all__", path: ""}]
+                :directories.map(dir => ({pathName: dir, path: dir}));
+
+
+            await Promise.all(namedCachedPaths.map(ncp => {
+                console.log(`Loading ${ncp.pathName} from cache:${coords.cacheName}`)
+                return cachePersistor.loadCache(coords, ncp.path, ncp.pathName);
             }));
 
             console.log(`Directories loaded from cache !`)

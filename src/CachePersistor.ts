@@ -8,6 +8,7 @@ export type CacheCoordinates = {
 export type CacheMetadata = {
     checksum: string|undefined;
     compressed: boolean;
+    all: boolean;
 };
 
 export class CachePersistor {
@@ -31,8 +32,8 @@ export class CachePersistor {
         await $`rm -f /tmp/metadata`
     }
 
-    async loadCache(coords: CacheCoordinates, cachedPath: string) {
-        await $`gsutil -m rsync -r ./${cachedPath} ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${cachedPath}`
+    async loadCache(coords: CacheCoordinates, path: string, pathName: string) {
+        await $`gsutil -m rsync -r ./${path} ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${pathName}`
     }
 
     async deleteCache(coords: CacheCoordinates) {
@@ -49,10 +50,10 @@ export class CachePersistor {
     }
 }
 export class CompressedCachePersistor extends CachePersistor {
-    async loadCache(coords: CacheCoordinates, cachedPath: string) {
-        await $`gsutil cp ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${cachedPath}.tar.gz /tmp/${cachedPath}.tar.gz`
+    async loadCache(coords: CacheCoordinates, path: string, pathName: string) {
+        await $`gsutil cp ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${pathName}.tar.gz /tmp/${pathName}.tar.gz`
         console.log(`Extracting compressed cache...`)
-        await $`tar -xzf /tmp/${cachedPath}.tar.gz --directory ./`
+        await $`tar -xzf /tmp/${pathName}.tar.gz --directory ./`
     }
 
     async deleteCache(coords: CacheCoordinates) {

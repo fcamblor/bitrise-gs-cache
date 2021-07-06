@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import 'zx';
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
-import { CachePersistor } from "./CachePersistor";
-import { cacheableCommand } from "./cacheableCommand";
+import { CachePersistor } from "./CachePersistor.js";
+import { cacheableCommand } from "./cacheableCommand.js";
 const cacheCoordsOptions = {
     'bucket-url': {
         type: 'string',
@@ -56,14 +56,20 @@ yargs(hideBin(process.argv))
     const coords = coordsFromOpts(argv);
     let compressed = !argv["skip-compress"];
     const cachePersistor = CachePersistor.compressed(compressed);
-    yield Promise.all(argv["directories"].map(dir => {
-        console.log(`Storing ${dir} into cache:${coords.cacheName}`);
-        return cachePersistor.pushCache(coords, dir, dir);
+    const directories = (argv["directories"] || []);
+    const synchronizeAll = !directories.length;
+    const namedCachedPaths = synchronizeAll
+        ? [{ pathName: "__all__", path: "." }]
+        : directories.map(dir => ({ pathName: dir, path: dir }));
+    yield Promise.all(namedCachedPaths.map(ncp => {
+        console.log(`Storing ${ncp.pathName} into cache:${coords.cacheName}`);
+        return cachePersistor.pushCache(coords, ncp.path, ncp.pathName);
     }));
     yield CachePersistor.storeCacheMetadata(coords, {
         compressed,
         // No need to provide any checksum when storing non-cacheable fs
-        checksum: undefined
+        checksum: undefined,
+        all: synchronizeAll
     });
     console.log(`Directories stored in cache !`);
 })).command("load-fs [directories..]", 'Loads directories previously stored into filesystem cache', (yargs) => yargs.options(Object.assign({}, cacheCoordsOptions)), (argv) => __awaiter(void 0, void 0, void 0, function* () {
@@ -73,9 +79,13 @@ yargs(hideBin(process.argv))
         throw new Error(`No cache metadata found for coordinates=${JSON.stringify(coords)}`);
     }
     const cachePersistor = CachePersistor.compressed(cacheMetadata.compressed);
-    yield Promise.all(argv["directories"].map(dir => {
-        console.log(`Loading ${dir} from cache:${coords.cacheName}`);
-        return cachePersistor.loadCache(coords, dir);
+    const directories = (argv["directories"] || []);
+    const namedCachedPaths = cacheMetadata.all
+        ? [{ pathName: "__all__", path: "" }]
+        : directories.map(dir => ({ pathName: dir, path: dir }));
+    yield Promise.all(namedCachedPaths.map(ncp => {
+        console.log(`Loading ${ncp.pathName} from cache:${coords.cacheName}`);
+        return cachePersistor.loadCache(coords, ncp.path, ncp.pathName);
     }));
     console.log(`Directories loaded from cache !`);
 })).command("cached-fs [directories..]", 'Either loads cached filesystem or rebuild it from scratch based on a checksum', (yargs) => yargs.options(Object.assign(Object.assign({}, cacheCoordsOptions), { 'checksum-file': {

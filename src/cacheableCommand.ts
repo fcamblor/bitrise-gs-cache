@@ -9,9 +9,11 @@ export type CacheableCommandOptions = {
 
 export async function cacheableCommand(coords: CacheCoordinates, opts: CacheableCommandOptions, commandIfOutdatedCache: () => ProcessPromise<ProcessOutput>) {
     let cacheMetadata: CacheMetadata|undefined = undefined, expectedChecksum = undefined;
+    // With cached-fs, we cannot cache "everything", we systematically need some cachedPaths
+    const synchronizeAll = false;
     cacheMetadata = await CachePersistor.loadCacheMetadata(coords);
     if(!cacheMetadata) {
-        cacheMetadata = { checksum: undefined, compressed: !!opts.compressContent }
+        cacheMetadata = { checksum: undefined, compressed: !!opts.compressContent, all: synchronizeAll }
     }
 
     if(opts.checksumCommand) {
@@ -28,7 +30,7 @@ export async function cacheableCommand(coords: CacheCoordinates, opts: Cacheable
     if(cacheMetadata.checksum && expectedChecksum && cacheMetadata.checksum === expectedChecksum) {
         console.info("Checksum didn't changed ! Loading cache content...")
 
-        await Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.loadCache(coords, cachedPath)));
+        await Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.loadCache(coords, cachedPath, cachedPath)));
 
         console.info("Cache loaded !");
     } else {
@@ -41,7 +43,8 @@ export async function cacheableCommand(coords: CacheCoordinates, opts: Cacheable
         await Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.pushCache(coords, cachedPath, cachedPath)))
         await CachePersistor.storeCacheMetadata(coords, {
             checksum: expectedChecksum,
-            compressed: !!opts.compressContent
+            compressed: !!opts.compressContent,
+            all: synchronizeAll
         });
 
         console.info("Cache updated !");

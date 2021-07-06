@@ -7,13 +7,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { CachePersistor } from "./CachePersistor";
+import { CachePersistor } from "./CachePersistor.js";
 export function cacheableCommand(coords, opts, commandIfOutdatedCache) {
     return __awaiter(this, void 0, void 0, function* () {
         let cacheMetadata = undefined, expectedChecksum = undefined;
+        // With cached-fs, we cannot cache "everything", we systematically need some cachedPaths
+        const synchronizeAll = false;
         cacheMetadata = yield CachePersistor.loadCacheMetadata(coords);
         if (!cacheMetadata) {
-            cacheMetadata = { checksum: undefined, compressed: !!opts.compressContent };
+            cacheMetadata = { checksum: undefined, compressed: !!opts.compressContent, all: synchronizeAll };
         }
         if (opts.checksumCommand) {
             try {
@@ -27,7 +29,7 @@ export function cacheableCommand(coords, opts, commandIfOutdatedCache) {
         const cachePersistor = CachePersistor.compressed(cacheMetadata.compressed);
         if (cacheMetadata.checksum && expectedChecksum && cacheMetadata.checksum === expectedChecksum) {
             console.info("Checksum didn't changed ! Loading cache content...");
-            yield Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.loadCache(coords, cachedPath)));
+            yield Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.loadCache(coords, cachedPath, cachedPath)));
             console.info("Cache loaded !");
         }
         else {
@@ -37,7 +39,8 @@ export function cacheableCommand(coords, opts, commandIfOutdatedCache) {
             yield Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.pushCache(coords, cachedPath, cachedPath)));
             yield CachePersistor.storeCacheMetadata(coords, {
                 checksum: expectedChecksum,
-                compressed: !!opts.compressContent
+                compressed: !!opts.compressContent,
+                all: synchronizeAll
             });
             console.info("Cache updated !");
         }

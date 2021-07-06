@@ -32,9 +32,9 @@ export class CachePersistor {
             yield $ `rm -f /tmp/metadata`;
         });
     }
-    loadCache(coords, cachedPath) {
+    loadCache(coords, path, pathName) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield $ `gsutil -m rsync -r ./${cachedPath} ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${cachedPath}`;
+            yield $ `gsutil -m rsync -r ./${path} ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${pathName}`;
         });
     }
     deleteCache(coords) {
@@ -55,11 +55,11 @@ export class CachePersistor {
     }
 }
 export class CompressedCachePersistor extends CachePersistor {
-    loadCache(coords, cachedPath) {
+    loadCache(coords, path, pathName) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield $ `gsutil cp ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${cachedPath}.tar.gz /tmp/${cachedPath}.tar.gz`;
+            yield $ `gsutil cp ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${pathName}.tar.gz /tmp/${pathName}.tar.gz`;
             console.log(`Extracting compressed cache...`);
-            yield $ `tar -xzf /tmp/${cachedPath}.tar.gz --directory ./`;
+            yield $ `tar -xzf /tmp/${pathName}.tar.gz --directory ./`;
         });
     }
     deleteCache(coords) {
