@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Globally installing zx
-npm install -g zx n
+npm install -g zx n https://github.com/fcamblor/bitrise-gs-cache.git\#main
 # we need node >= 14 with top-level await in order to make zx work
 sudo n install 14
 
