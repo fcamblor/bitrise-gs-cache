@@ -7,15 +7,16 @@ export type LoadFSOptions = {
 };
 
 export async function loadFS(opts: LoadFSOptions) {
-    const cacheMetadata = await CachePersistor.loadCacheMetadata(opts.coords);
+    let cacheMetadata = await CachePersistor.loadCacheMetadata(opts.coords);
 
     if(!cacheMetadata) {
         const message = `No cache metadata found for coordinates=${JSON.stringify(opts.coords)}`;
         switch(opts.onInexistantCache) {
             case 'fail': throw new Error(message);
-            case 'warn': console.log(message); return;
+            case 'warn': console.log(message);
             // default ('ignore'): do nothing
         }
+        return;
     }
 
     const cachePersistor = CachePersistor.compressed(cacheMetadata!.compressed);

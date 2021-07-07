@@ -10,16 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { CachePersistor } from "../CachePersistor.js";
 export function loadFS(opts) {
     return __awaiter(this, void 0, void 0, function* () {
-        const cacheMetadata = yield CachePersistor.loadCacheMetadata(opts.coords);
+        let cacheMetadata = yield CachePersistor.loadCacheMetadata(opts.coords);
         if (!cacheMetadata) {
             const message = `No cache metadata found for coordinates=${JSON.stringify(opts.coords)}`;
             switch (opts.onInexistantCache) {
                 case 'fail': throw new Error(message);
-                case 'warn':
-                    console.log(message);
-                    return;
+                case 'warn': console.log(message);
                 // default ('ignore'): do nothing
             }
+            return;
         }
         const cachePersistor = CachePersistor.compressed(cacheMetadata.compressed);
         const namedCachedPaths = cacheMetadata.all
