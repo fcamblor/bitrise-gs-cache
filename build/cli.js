@@ -11,8 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import 'zx';
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
-import { CachePersistor } from "./CachePersistor.js";
-import { cacheableCommand } from "./cacheableCommand.js";
+import { auth } from "./commands/auth.js";
+import { storeFS } from "./commands/store-fs.js";
+import { loadFS } from "./commands/load-fs.js";
+import { cachedFS } from "./commands/cached-fs.js";
 const cacheCoordsOptions = {
     'bucket-url': {
         type: 'string',
@@ -44,49 +46,31 @@ yargs(hideBin(process.argv))
         describe: 'url from where to download your account service key'
     }
 }), (argv) => __awaiter(void 0, void 0, void 0, function* () {
-    const tmpLocalFile = `/tmp/google-service-account.json`;
-    yield $ `curl -sSL ${argv["key-config"]} > ${tmpLocalFile}`;
-    yield $ `gcloud auth activate-service-account -q --key-file ${tmpLocalFile}`;
-    yield $ `rm -f ${tmpLocalFile}`;
+    yield auth({
+        keyConfig: argv["key-config"]
+    });
 })).command("store-fs [directories..]", 'Stores directories into filesystem cache', (yargs) => yargs.options(Object.assign(Object.assign({}, cacheCoordsOptions), { 'skip-compress': {
         type: 'boolean',
         describe: 'avoids compressing files prior to sending it in store'
     } })), (argv) => __awaiter(void 0, void 0, void 0, function* () {
     const coords = coordsFromOpts(argv);
     let compressed = !argv["skip-compress"];
-    const cachePersistor = CachePersistor.compressed(compressed);
     const directories = (argv["directories"] || []);
-    const synchronizeAll = !directories.length;
-    const namedCachedPaths = synchronizeAll
-        ? [{ pathName: "__all__", path: "." }]
-        : directories.map(dir => ({ pathName: dir, path: dir }));
-    yield Promise.all(namedCachedPaths.map(ncp => {
-        console.log(`Storing ${ncp.pathName} into cache:${coords.cacheName}`);
-        return cachePersistor.pushCache(coords, ncp.path, ncp.pathName);
-    }));
-    yield CachePersistor.storeCacheMetadata(coords, {
-        compressed,
-        // No need to provide any checksum when storing non-cacheable fs
-        checksum: undefined,
-        all: synchronizeAll
+    yield storeFS({
+        coords, compressed, directories
     });
-    console.log(`Directories stored in cache !`);
-})).command("load-fs [directories..]", 'Loads directories previously stored into filesystem cache', (yargs) => yargs.options(Object.assign({}, cacheCoordsOptions)), (argv) => __awaiter(void 0, void 0, void 0, function* () {
+})).command("load-fs [directories..]", 'Loads directories previously stored into filesystem cache', (yargs) => yargs.options(Object.assign(Object.assign({}, cacheCoordsOptions), { 'on-inexistant-cache': {
+        type: 'string',
+        default: 'ignore',
+        describe: `allows to either ignore or fail the command when the cache doesn't exist`,
+        choices: ['ignore', 'warn', 'fail']
+    } })), (argv) => __awaiter(void 0, void 0, void 0, function* () {
     const coords = coordsFromOpts(argv);
-    const cacheMetadata = yield CachePersistor.loadCacheMetadata(coords);
-    if (!cacheMetadata) {
-        throw new Error(`No cache metadata found for coordinates=${JSON.stringify(coords)}`);
-    }
-    const cachePersistor = CachePersistor.compressed(cacheMetadata.compressed);
     const directories = (argv["directories"] || []);
-    const namedCachedPaths = cacheMetadata.all
-        ? [{ pathName: "__all__", path: "" }]
-        : directories.map(dir => ({ pathName: dir, path: dir }));
-    yield Promise.all(namedCachedPaths.map(ncp => {
-        console.log(`Loading ${ncp.pathName} from cache:${coords.cacheName}`);
-        return cachePersistor.loadCache(coords, ncp.path, ncp.pathName);
-    }));
-    console.log(`Directories loaded from cache !`);
+    const onInexistantCache = argv['on-inexistant-cache'];
+    yield loadFS({
+        coords, directories, onInexistantCache
+    });
 })).command("cached-fs [directories..]", 'Either loads cached filesystem or rebuild it from scratch based on a checksum', (yargs) => yargs.options(Object.assign(Object.assign({}, cacheCoordsOptions), { 'checksum-file': {
         type: 'string',
         demandOption: true,
@@ -98,16 +82,18 @@ yargs(hideBin(process.argv))
     }, 'skip-compress': {
         type: 'boolean',
         describe: 'avoids compressing files prior to sending it in store'
-    } })), (argv) => __awaiter(void 0, void 0, void 0, function* () {
+    } })).check((argv, options) => {
+    if (!argv['directories'] || argv['directories'].length === 0) {
+        throw new Error("At least 1 directory must be provided !");
+    }
+    return true;
+}), (argv) => __awaiter(void 0, void 0, void 0, function* () {
     const coords = coordsFromOpts(argv);
     const compressed = !argv["skip-compress"];
-    yield cacheableCommand(coords, {
-        compressContent: compressed,
-        checksumCommand: () => $ `md5 -q "${argv["checksum-file"]}"`,
-        cachedPaths: argv["directories"]
-    }, () => {
-        const [command, ...args] = argv["cacheable-command"].split(" ");
-        console.info(`Executing cacheable command: ${command} ${args}`);
-        return $ `${command} ${args}`;
+    const directories = (argv["directories"] || []);
+    yield cachedFS({
+        coords, compressed, directories,
+        checksumFile: argv["checksum-file"],
+        cacheableCommand: argv["cacheable-command"]
     });
 })).help().argv;
