@@ -82,20 +82,31 @@ yargs(hideBin(process.argv))
         }
     ).command("load-fs [directories..]", 'Loads directories previously stored into filesystem cache', (yargs) =>
         yargs.options({
-            ...cacheCoordsOptions
+            ...cacheCoordsOptions,
+            'on-inexistant-cache': {
+                type: 'string',
+                default: 'ignore',
+                describe: `allows to either ignore or fail the command when the cache doesn't exist`,
+                choices: ['ignore', 'warn', 'fail']
+            }
         }), async (argv) => {
 
             const coords = coordsFromOpts(argv);
             const cacheMetadata = await CachePersistor.loadCacheMetadata(coords);
 
             if(!cacheMetadata) {
-                throw new Error(`No cache metadata found for coordinates=${JSON.stringify(coords)}`)
+                const message = `No cache metadata found for coordinates=${JSON.stringify(coords)}`;
+                switch(argv['on-inexistant-cache']) {
+                    case 'fail': throw new Error(message);
+                    case 'warn': console.log(message); return;
+                    // default ('ignore'): do nothing
+                }
             }
 
-            const cachePersistor = CachePersistor.compressed(cacheMetadata.compressed);
+            const cachePersistor = CachePersistor.compressed(cacheMetadata!.compressed);
 
             const directories = (argv["directories"] || []) as string[];
-            const namedCachedPaths: {pathName: string, path: string}[] = cacheMetadata.all
+            const namedCachedPaths: {pathName: string, path: string}[] = cacheMetadata!.all
                 ?[{pathName: "__all__", path: ""}]
                 :directories.map(dir => ({pathName: dir, path: dir}));
 
