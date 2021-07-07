@@ -33,7 +33,7 @@ export class CachePersistor {
     }
 
     async loadCache(coords: CacheCoordinates, path: string, pathName: string) {
-        await $`gsutil -m rsync -r ./${path} ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${pathName}`
+        await $`gsutil -m rsync -r ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${pathName} ./${path}`
     }
 
     async deleteCache(coords: CacheCoordinates) {

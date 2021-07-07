@@ -34,7 +34,7 @@ export class CachePersistor {
     }
     loadCache(coords, path, pathName) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield $ `gsutil -m rsync -r ./${path} ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${pathName}`;
+            yield $ `gsutil -m rsync -r ${coords.bucketUrl}/content/${coords.branch}/${coords.cacheName}/${pathName} ./${path}`;
         });
     }
     deleteCache(coords) {
