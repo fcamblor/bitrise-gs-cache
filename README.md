@@ -23,8 +23,17 @@ content to/from a google-cloud-storage bucket.
 
 `npm install -g gcs-cache`
 
-Important note : in order to make it work, you will need `gcloud` and `gsutil` commands available
-into your `PATH`
+## Important notes
+
+- in order to make it work, you will need `gcloud` and `gsutil` commands available
+  into your `PATH`. You can find a `utilities/install-gcloud.sh` installation script utility to 
+  facilitate this in the repository : 
+
+```
+curl "https://raw.githubusercontent.com/fcamblor/gcs-cache/1.1.0/utilities/install-gcloud.sh" | bash -s [<path/to/bin/folder>] [<path/to/gcloud/installation/folder>] [<path/to/gcloud/config/folder>]
+```  
+
+- you will need `node@14` to run it properly
 
 # Usages
 
