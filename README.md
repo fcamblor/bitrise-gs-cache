@@ -93,6 +93,11 @@ put into current directory.
 Cache contents will differ depending on whether content has been created using `cached-fs` 
 or `store-fs`/`load-fs` commands.
 
+Every caches can be resolved through 3 coordinates :
+- bucket url : `gs://my-bucket`
+- branch name : when omitted, we fallback on the `unknown-branch` name
+- cache name
+
 ## `cached-fs` content
 
 Bucket `gs://my-bucket` cached content will differ depending on whether content is `compressed` or not.
