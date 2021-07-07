@@ -40,14 +40,23 @@ function coordsFromOpts(argv) {
 }
 yargs(hideBin(process.argv))
     .command(["auth"], 'authenticates against your gcs bucket', (yargs) => yargs.options({
-    'key-config': {
+    'key-config-url': {
         type: 'string',
-        demandOption: true,
-        describe: 'url from where to download your account service key'
+        describe: 'url from where to download your google service account JSON key'
+    },
+    'key-config-file': {
+        type: 'string',
+        describe: 'local file containing your google service account JSON key'
     }
+}).check((argv, options) => {
+    if (!argv['key-config-url'] && !argv['key-config-file']) {
+        throw new Error("Either --key-config-url or --key-config-file options need to be set");
+    }
+    return true;
 }), (argv) => __awaiter(void 0, void 0, void 0, function* () {
     yield auth({
-        keyConfig: argv["key-config"]
+        keyConfig: (argv["key-config-url"] || argv["key-config-file"]),
+        type: argv["key-config-url"] ? 'url' : 'file'
     });
 })).command("store-fs [directories..]", 'Stores directories into filesystem cache', (yargs) => yargs.options(Object.assign(Object.assign({}, cacheCoordsOptions), { 'skip-compress': {
         type: 'boolean',

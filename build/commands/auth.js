@@ -9,9 +9,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 export function auth(opts) {
     return __awaiter(this, void 0, void 0, function* () {
-        const tmpLocalFile = `/tmp/google-service-account.json`;
-        yield $ `curl -sSL ${opts.keyConfig} > ${tmpLocalFile}`;
-        yield $ `gcloud auth activate-service-account -q --key-file ${tmpLocalFile}`;
-        yield $ `rm -f ${tmpLocalFile}`;
+        let keyConfigFile;
+        switch (opts.type) {
+            case 'url':
+                keyConfigFile = `/tmp/google-service-account.json`;
+                yield $ `curl -sSL ${opts.keyConfig} > ${keyConfigFile}`;
+                break;
+            case 'file':
+                keyConfigFile = opts.keyConfig;
+                break;
+        }
+        yield $ `gcloud auth activate-service-account -q --key-file ${keyConfigFile}`;
+        if (opts.type === 'url') {
+            yield $ `rm -f ${keyConfigFile}`;
+        }
     });
 }
