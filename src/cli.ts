@@ -124,7 +124,7 @@ yargs(hideBin(process.argv))
                 describe: 'avoids compressing files prior to sending it in store'
             }
         }).check((argv, options) => {
-            if(!argv['directories'] || (argv['directories'] as string[]).length===0) {
+            if(!argv['nameableDirectories'] || (argv['nameableDirectories'] as string[]).length===0) {
                 throw new Error("At least 1 directory must be provided !")
             }
             return true;
