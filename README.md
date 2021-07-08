@@ -30,7 +30,7 @@ content to/from a google-cloud-storage bucket.
   facilitate this in the repository : 
 
 ```
-curl "https://raw.githubusercontent.com/fcamblor/gcs-cache/1.1.0/utilities/install-gcloud.sh" | bash -s [<path/to/bin/folder>] [<path/to/gcloud/installation/folder>] [<path/to/gcloud/config/folder>]
+curl "https://raw.githubusercontent.com/fcamblor/gcs-cache/1.2.4/utilities/install-gcloud.sh" | bash -s [<path/to/bin/folder>] [<path/to/gcloud/installation/folder>]
 ```  
 
 - you will need `node@14` to run it properly
