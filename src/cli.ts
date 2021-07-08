@@ -44,7 +44,7 @@ function coordsFromOpts(argv: {[key in CoordsKeys]: string|unknown}): CacheCoord
 function namedDirectoriesFrom(nameableDirs: string[]): NamedDirectory[] {
     return nameableDirs.map(nameableDir => {
         const [chunk1, chunk2] = nameableDir.split(":") as [string, string|undefined];
-        return { path: chunk1, name: chunk2 || chunk1 };
+        return { name: chunk1, path: chunk2 || chunk1 };
     })
 }
 

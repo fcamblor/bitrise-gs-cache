@@ -46,7 +46,7 @@ function coordsFromOpts(argv) {
 function namedDirectoriesFrom(nameableDirs) {
     return nameableDirs.map(nameableDir => {
         const [chunk1, chunk2] = nameableDir.split(":");
-        return { path: chunk1, name: chunk2 || chunk1 };
+        return { name: chunk1, path: chunk2 || chunk1 };
     });
 }
 yargs(hideBin(process.argv))
