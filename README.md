@@ -53,12 +53,12 @@ manipulation through the CLI.
 ## Synchronize a cacheable filesystem
 
 ```
-gcs-cache cached-fs --bucket-url=gs://my-bucket --branch=my-branch --cache-name=npm-packages --checksum-file=package.json "--cacheable-command=npm install" node_modules
+gcs-cache cached-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --cache-name=npm-packages --checksum-file=package.json "--cacheable-command=npm install" node_modules
 ```
 
 This will :
 - Retrieve checksum from `checksum-file` (`package.json`)
-- Compare it with gcs `npm-packages` cache metadata for branch `my-branch` :
+- Compare it with gcs `npm-packages` cache metadata for branch `my-branch` in app `my-app` :
     - If checksums differ, then `cacheable-command` (`npm install`) will be executed, and 
       `node_modules` directory will then be put into `npm-packages` cache for branch `my-branch`
     - If checksums are the same, then `npm-packages` cache will be downloaded and applied on `node_modules`
@@ -67,10 +67,10 @@ This will :
 ## Put filesystem into the cache
 
 ```
-gcs-cache store-fs --bucket-url=gs://my-bucket --branch=my-branch --cache-name=my-cache directory1 directory2
+gcs-cache store-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --cache-name=my-cache directory1 directory2
 ```
 
-This will store `directory1` and `directory2` contents into cache `my-cache` for branch `my-branch`
+This will store `directory1` and `directory2` contents into cache `my-cache` for branch `my-branch` in app `my-app`
 
 You can avoid passing any directory: in that case, the whole **current** directory content will be put into the cache.
 
@@ -78,10 +78,10 @@ You can avoid passing any directory: in that case, the whole **current** directo
 ## Get filesystem from the cache
 
 ```
-gcs-cache load-fs --bucket-url=gs://my-bucket --branch=my-branch --cache-name=my-cache directory1 directory2
+gcs-cache load-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --cache-name=my-cache directory1 directory2
 ```
 
-This will load `directory1` and `directory2` content from cache `my-cache` for branch `my-branch`
+This will load `directory1` and `directory2` content from cache `my-cache` for branch `my-branch` in app `my-appp`
 into current directory's `directory1` and `directory2`
 
 You can avoid passing any directory: in that case, the special `__all__` cache content will be
@@ -93,8 +93,11 @@ put into current directory.
 Cache contents will differ depending on whether content has been created using `cached-fs` 
 or `store-fs`/`load-fs` commands.
 
-Every caches can be resolved through 3 coordinates :
+Every caches can be resolved through 4 coordinates :
 - bucket url : `gs://my-bucket`
+- app : a unique app id identifier used to isolate contents from 1 app to another inside the same bucket
+  **Important note**: note that by giving access to a bucket, you give access to every app content
+  stored on this bucket (no ACL is setup to limit access to apps content from a single bucket)
 - branch name : when omitted, we fallback on the `unknown-branch` name
 - cache name
 
@@ -103,7 +106,7 @@ Every caches can be resolved through 3 coordinates :
 Bucket `gs://my-bucket` cached content will differ depending on whether content is `compressed` or not.
 
 For **compressed** content :
-- `metadata/<branch-name>/<cache-name>.json` with following content :
+- `<app>/metadata/<branch-name>/<cache-name>.json` with following content :
 ```
 {
     "checksum": "bc694811390c7b4da545a364a3993d7d",
@@ -111,13 +114,13 @@ For **compressed** content :
     "all": false
 }
 ```
-- `content/<branch-name>/<cache-name>/<directory1>.tar.gz` with compressed `directory1` content
-- `content/<branch-name>/<cache-name>/<directory2>.tar.gz` with compressed `directory2` content
+- `<app>/content/<branch-name>/<cache-name>/<directory1>.tar.gz` with compressed `directory1` content
+- `<app>/content/<branch-name>/<cache-name>/<directory2>.tar.gz` with compressed `directory2` content
 
 _etc._
 
 For **uncompressed** content :
-- `metadata/<branch-name>/<cache-name>.json` with following content :
+- `<app>/metadata/<branch-name>/<cache-name>.json` with following content :
 ```
 {
     "checksum": "bc694811390c7b4da545a364a3993d7d",
@@ -125,8 +128,8 @@ For **uncompressed** content :
     "all": false
 }
 ```
-- `content/<branch-name>/<cache-name>/directory1/*` with `directory1` content
-- `content/<branch-name>/<cache-name>/directory2/*` with `directory2` content
+- `<app>/content/<branch-name>/<cache-name>/directory1/*` with `directory1` content
+- `<app>/content/<branch-name>/<cache-name>/directory2/*` with `directory2` content
 
 _etc._
 
@@ -135,40 +138,40 @@ _etc._
 Bucket `gs://my-bucket` cached content will differ depending on whether content is `compressed` or not.
 
 For **compressed** content :
-- `metadata/<branch-name>/<cache-name>.json` with following content :
+- `<app>/metadata/<branch-name>/<cache-name>.json` with following content :
 ```
 {
     "compressed": true,
     "all": false
 }
 ```
-- `content/<branch-name>/<cache-name>/<directory1>.tar.gz` with compressed `directory1` content
-- `content/<branch-name>/<cache-name>/<directory2>.tar.gz` with compressed `directory2` content
+- `<app>/content/<branch-name>/<cache-name>/<directory1>.tar.gz` with compressed `directory1` content
+- `<app>/content/<branch-name>/<cache-name>/<directory2>.tar.gz` with compressed `directory2` content
 
 _etc._
 
 For **uncompressed** content :
-- `metadata/<branch-name>/<cache-name>.json` with following content :
+- `<app>/metadata/<branch-name>/<cache-name>.json` with following content :
 ```
 {
     "compressed": false,
     "all": false
 }
 ```
-- `content/<branch-name>/<cache-name>/directory1/*` with `directory1` content
-- `content/<branch-name>/<cache-name>/directory2/*` with `directory2` content
+- `<app>/content/<branch-name>/<cache-name>/directory1/*` with `directory1` content
+- `<app>/content/<branch-name>/<cache-name>/directory2/*` with `directory2` content
 
 _etc._
 
 When **no directory** is specificed to `store-fs` / `load-fs` commands, then have following content :
-- `metadata/<branch-name>/<cache-name>.json` with following content :
+- `<app>/metadata/<branch-name>/<cache-name>.json` with following content :
 ```
 {
     "compressed": true,
     "all": true
 }
 ```
-- `content/<branch-name>/<cache-name>/__all__.tar.gz` with compressed current directory content
+- `<app>/content/<branch-name>/<cache-name>/__all__.tar.gz` with compressed current directory content
 
 _For **uncompressed no directory**, this is the same idea, except that `__all__.tar.gz` archive is replaced
 by a `__all__` directory_

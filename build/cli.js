@@ -25,6 +25,10 @@ const cacheCoordsOptions = {
         type: 'string',
         describe: 'cache branch name'
     },
+    'app': {
+        type: 'string',
+        describe: 'your app identifier'
+    },
     'cache-name': {
         type: 'string',
         demandOption: true,
@@ -34,6 +38,7 @@ const cacheCoordsOptions = {
 function coordsFromOpts(argv) {
     return {
         bucketUrl: argv["bucket-url"],
+        app: argv["app"],
         branch: (argv["branch"] || 'unknown-branch'),
         cacheName: argv["cache-name"]
     };

@@ -10,7 +10,7 @@ import {loadFS} from "./commands/load-fs.js";
 import {cachedFS} from "./commands/cached-fs.js";
 
 
-type CoordsKeys = "bucket-url"|"branch"|"cache-name";
+type CoordsKeys = "bucket-url"|"app"|"branch"|"cache-name";
 const cacheCoordsOptions: Record<CoordsKeys, Options> = {
     'bucket-url': {
         type: 'string',
@@ -20,6 +20,10 @@ const cacheCoordsOptions: Record<CoordsKeys, Options> = {
     'branch': {
         type: 'string',
         describe: 'cache branch name'
+    },
+    'app': {
+        type: 'string',
+        describe: 'your app identifier'
     },
     'cache-name': {
         type: 'string',
@@ -31,6 +35,7 @@ const cacheCoordsOptions: Record<CoordsKeys, Options> = {
 function coordsFromOpts(argv: {[key in CoordsKeys]: string|unknown}): CacheCoordinates {
     return {
         bucketUrl: argv["bucket-url"] as string,
+        app: argv["app"] as string,
         branch: (argv["branch"] || 'unknown-branch') as string,
         cacheName: argv["cache-name"] as string
     };
