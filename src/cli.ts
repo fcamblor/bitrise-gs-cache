@@ -3,7 +3,7 @@
 import 'zx'
 import {hideBin} from "yargs/helpers";
 import yargs, {Options} from "yargs";
-import {CacheCoordinates} from "./CachePersistor.js";
+import {CacheCoordinates, NamedDirectory} from "./CachePersistor.js";
 import {auth} from "./commands/auth.js";
 import {storeFS} from "./commands/store-fs.js";
 import {loadFS} from "./commands/load-fs.js";
@@ -41,6 +41,13 @@ function coordsFromOpts(argv: {[key in CoordsKeys]: string|unknown}): CacheCoord
     };
 }
 
+function namedDirectoriesFrom(nameableDirs: string[]): NamedDirectory[] {
+    return nameableDirs.map(nameableDir => {
+        const [chunk1, chunk2] = nameableDir.split(":") as [string, string|undefined];
+        return { path: chunk1, name: chunk2 || chunk1 };
+    })
+}
+
 yargs(hideBin(process.argv))
     .command(["auth"], 'authenticates against your gcs bucket', (yargs) =>
         yargs.options({
@@ -63,7 +70,7 @@ yargs(hideBin(process.argv))
                 type: argv["key-config-url"]?'url':'file'
             });
         }
-    ).command("store-fs [directories..]", 'Stores directories into filesystem cache', (yargs) =>
+    ).command("store-fs [nameableDirectories..]", 'Stores directories into filesystem cache', (yargs) =>
         yargs.options({
             ...cacheCoordsOptions,
             'skip-compress': {
@@ -74,13 +81,13 @@ yargs(hideBin(process.argv))
 
             const coords = coordsFromOpts(argv);
             let compressed = !argv["skip-compress"];
-            const directories = (argv["directories"] || []) as string[];
+            const directories = namedDirectoriesFrom((argv["nameableDirectories"] || []) as string[]);
 
             await storeFS({
                 coords, compressed, directories
             });
         }
-    ).command("load-fs [directories..]", 'Loads directories previously stored into filesystem cache', (yargs) =>
+    ).command("load-fs [nameableDirectories..]", 'Loads directories previously stored into filesystem cache', (yargs) =>
         yargs.options({
             ...cacheCoordsOptions,
             'on-inexistant-cache': {
@@ -92,14 +99,14 @@ yargs(hideBin(process.argv))
         }), async (argv) => {
 
             const coords = coordsFromOpts(argv);
-            const directories = (argv["directories"] || []) as string[];
+            const directories = namedDirectoriesFrom((argv["nameableDirectories"] || []) as string[]);
             const onInexistantCache = argv['on-inexistant-cache'] as "ignore"|"warn"|"fail";
 
             await loadFS({
                 coords, directories, onInexistantCache
             });
         }
-    ).command("cached-fs [directories..]", 'Either loads cached filesystem or rebuild it from scratch based on a checksum', (yargs) =>
+    ).command("cached-fs [nameableDirectories..]", 'Either loads cached filesystem or rebuild it from scratch based on a checksum', (yargs) =>
         yargs.options({
             ...cacheCoordsOptions,
             'checksum-file': {
@@ -124,7 +131,7 @@ yargs(hideBin(process.argv))
         }), async (argv) => {
             const coords = coordsFromOpts(argv);
             const compressed = !argv["skip-compress"];
-            const directories = (argv["directories"] || []) as string[];
+            const directories = namedDirectoriesFrom((argv["nameableDirectories"] || []) as string[]);
 
             await cachedFS({
                 coords, compressed, directories,

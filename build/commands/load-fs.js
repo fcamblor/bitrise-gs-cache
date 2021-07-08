@@ -22,11 +22,11 @@ export function loadFS(opts) {
         }
         const cachePersistor = CachePersistor.compressed(cacheMetadata.compressed);
         const namedCachedPaths = cacheMetadata.all
-            ? [{ pathName: "__all__", path: "" }]
-            : opts.directories.map(dir => ({ pathName: dir, path: dir }));
+            ? [{ name: "__all__", path: "" }]
+            : opts.directories;
         yield Promise.all(namedCachedPaths.map(ncp => {
-            console.log(`Loading ${ncp.pathName} from cache:${opts.coords.cacheName}`);
-            return cachePersistor.loadCache(opts.coords, ncp.path, ncp.pathName);
+            console.log(`Loading ${ncp.name} from cache:${opts.coords.cacheName}`);
+            return cachePersistor.loadCache(opts.coords, ncp);
         }));
         console.log(`Directories loaded from cache !`);
     });

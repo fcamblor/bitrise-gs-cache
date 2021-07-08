@@ -32,9 +32,9 @@ export class CachePersistor {
             yield $ `rm -f /tmp/metadata`;
         });
     }
-    loadCache(coords, path, pathName) {
+    loadCache(coords, namedDir) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield $ `gsutil -m rsync -r ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${pathName} ./${path}`;
+            yield $ `gsutil -m rsync -r ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${namedDir.name} ./${namedDir.path}`;
         });
     }
     deleteCache(coords) {
@@ -48,18 +48,18 @@ export class CachePersistor {
             catch (e) { }
         });
     }
-    pushCache(coords, path, pathName) {
+    pushCache(coords, namedDir) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield $ `gsutil -m rsync -r ${path} ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${pathName}`;
+            yield $ `gsutil -m rsync -r ${namedDir.path} ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${namedDir.name}`;
         });
     }
 }
 export class CompressedCachePersistor extends CachePersistor {
-    loadCache(coords, path, pathName) {
+    loadCache(coords, namedDir) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield $ `gsutil cp ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${pathName}.tar.gz /tmp/${pathName}.tar.gz`;
+            yield $ `gsutil cp ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${namedDir.name}.tar.gz /tmp/${namedDir.name}.tar.gz`;
             console.log(`Extracting compressed cache...`);
-            yield $ `tar -xzf /tmp/${pathName}.tar.gz --directory ./`;
+            yield $ `tar -xzf /tmp/${namedDir.name}.tar.gz --directory ./`;
         });
     }
     deleteCache(coords) {
@@ -73,12 +73,12 @@ export class CompressedCachePersistor extends CachePersistor {
             catch (e) { }
         });
     }
-    pushCache(coords, path, pathName) {
+    pushCache(coords, namedDir) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`Compressing path ${path} (named ${pathName}) prior to sending it into the cache...`);
-            yield $ `tar -czf /tmp/${pathName}.tar.gz ${path}`;
-            yield $ `gsutil cp /tmp/${pathName}.tar.gz ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${pathName}.tar.gz`;
-            yield $ `rm -rf /tmp/${pathName}.tar.gz`;
+            console.log(`Compressing path ${namedDir.path} (named ${namedDir.name}) prior to sending it into the cache...`);
+            yield $ `tar -czf /tmp/${namedDir.name}.tar.gz ${namedDir.path}`;
+            yield $ `gsutil cp /tmp/${namedDir.name}.tar.gz ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${namedDir.name}.tar.gz`;
+            yield $ `rm -rf /tmp/${namedDir.name}.tar.gz`;
         });
     }
 }

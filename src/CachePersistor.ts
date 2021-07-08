@@ -12,6 +12,11 @@ export type CacheMetadata = {
     all: boolean;
 };
 
+export type NamedDirectory = {
+    name: string;
+    path: string;
+}
+
 export class CachePersistor {
     static jsonMetadataUrlFor(coords: CacheCoordinates) {
         return `${coords.bucketUrl}/${coords.app}/metadata/${coords.branch}/${coords.cacheName}.json`;
@@ -33,8 +38,8 @@ export class CachePersistor {
         await $`rm -f /tmp/metadata`
     }
 
-    async loadCache(coords: CacheCoordinates, path: string, pathName: string) {
-        await $`gsutil -m rsync -r ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${pathName} ./${path}`
+    async loadCache(coords: CacheCoordinates, namedDir: NamedDirectory) {
+        await $`gsutil -m rsync -r ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${namedDir.name} ./${namedDir.path}`
     }
 
     async deleteCache(coords: CacheCoordinates) {
@@ -46,15 +51,15 @@ export class CachePersistor {
         }catch(e){}
     }
 
-    async pushCache(coords: CacheCoordinates, path: string, pathName: string) {
-        await $`gsutil -m rsync -r ${path} ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${pathName}`
+    async pushCache(coords: CacheCoordinates, namedDir: NamedDirectory) {
+        await $`gsutil -m rsync -r ${namedDir.path} ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${namedDir.name}`
     }
 }
 export class CompressedCachePersistor extends CachePersistor {
-    async loadCache(coords: CacheCoordinates, path: string, pathName: string) {
-        await $`gsutil cp ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${pathName}.tar.gz /tmp/${pathName}.tar.gz`
+    async loadCache(coords: CacheCoordinates, namedDir: NamedDirectory) {
+        await $`gsutil cp ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${namedDir.name}.tar.gz /tmp/${namedDir.name}.tar.gz`
         console.log(`Extracting compressed cache...`)
-        await $`tar -xzf /tmp/${pathName}.tar.gz --directory ./`
+        await $`tar -xzf /tmp/${namedDir.name}.tar.gz --directory ./`
     }
 
     async deleteCache(coords: CacheCoordinates) {
@@ -66,10 +71,10 @@ export class CompressedCachePersistor extends CachePersistor {
         }catch(e){}
     }
 
-    async pushCache(coords: CacheCoordinates, path: string, pathName: string) {
-        console.log(`Compressing path ${path} (named ${pathName}) prior to sending it into the cache...`)
-        await $`tar -czf /tmp/${pathName}.tar.gz ${path}`
-        await $`gsutil cp /tmp/${pathName}.tar.gz ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${pathName}.tar.gz`
-        await $`rm -rf /tmp/${pathName}.tar.gz`
+    async pushCache(coords: CacheCoordinates, namedDir: NamedDirectory) {
+        console.log(`Compressing path ${namedDir.path} (named ${namedDir.name}) prior to sending it into the cache...`)
+        await $`tar -czf /tmp/${namedDir.name}.tar.gz ${namedDir.path}`
+        await $`gsutil cp /tmp/${namedDir.name}.tar.gz ${coords.bucketUrl}/${coords.app}/content/${coords.branch}/${coords.cacheName}/${namedDir.name}.tar.gz`
+        await $`rm -rf /tmp/${namedDir.name}.tar.gz`
     }
 }

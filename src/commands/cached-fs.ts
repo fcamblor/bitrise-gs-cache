@@ -1,5 +1,5 @@
 import {cacheableCommand} from "../cacheableCommand.js";
-import {CacheCoordinates} from "../CachePersistor.js";
+import {CacheCoordinates, NamedDirectory} from "../CachePersistor.js";
 
 
 export type CachedFSOptions = {
@@ -7,7 +7,7 @@ export type CachedFSOptions = {
     compressed: boolean;
     checksumFile: string;
     cacheableCommand: string;
-    directories: string[];
+    directories: NamedDirectory[];
 };
 
 export async function cachedFS(opts: CachedFSOptions) {

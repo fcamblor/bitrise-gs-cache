@@ -1,8 +1,8 @@
 import {ProcessOutput, ProcessPromise} from "zx";
-import {CacheCoordinates, CacheMetadata, CachePersistor} from "./CachePersistor.js";
+import {CacheCoordinates, CacheMetadata, CachePersistor, NamedDirectory} from "./CachePersistor.js";
 
 export type CacheableCommandOptions = {
-    cachedPaths: string[],
+    cachedPaths: NamedDirectory[],
     compressContent?: boolean,
     checksumCommand?: () => ProcessPromise<ProcessOutput>
 };
@@ -30,7 +30,7 @@ export async function cacheableCommand(coords: CacheCoordinates, opts: Cacheable
     if(cacheMetadata.checksum && expectedChecksum && cacheMetadata.checksum === expectedChecksum) {
         console.info("Checksum didn't changed ! Loading cache content...")
 
-        await Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.loadCache(coords, cachedPath, cachedPath)));
+        await Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.loadCache(coords, cachedPath)));
 
         console.info("Cache loaded !");
     } else {
@@ -40,7 +40,7 @@ export async function cacheableCommand(coords: CacheCoordinates, opts: Cacheable
 
         await commandIfOutdatedCache();
 
-        await Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.pushCache(coords, cachedPath, cachedPath)))
+        await Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.pushCache(coords, cachedPath)))
         await CachePersistor.storeCacheMetadata(coords, {
             checksum: expectedChecksum,
             compressed: !!opts.compressContent,

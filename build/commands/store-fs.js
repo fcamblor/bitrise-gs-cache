@@ -13,11 +13,11 @@ export function storeFS(opts) {
         const cachePersistor = CachePersistor.compressed(opts.compressed);
         const synchronizeAll = !opts.directories.length;
         const namedCachedPaths = synchronizeAll
-            ? [{ pathName: "__all__", path: "." }]
-            : opts.directories.map(dir => ({ pathName: dir, path: dir }));
+            ? [{ name: "__all__", path: "." }]
+            : opts.directories;
         yield Promise.all(namedCachedPaths.map(ncp => {
-            console.log(`Storing ${ncp.pathName} into cache:${opts.coords.cacheName}`);
-            return cachePersistor.pushCache(opts.coords, ncp.path, ncp.pathName);
+            console.log(`Storing ${ncp.name} into cache:${opts.coords.cacheName}`);
+            return cachePersistor.pushCache(opts.coords, ncp);
         }));
         yield CachePersistor.storeCacheMetadata(opts.coords, {
             compressed: opts.compressed,

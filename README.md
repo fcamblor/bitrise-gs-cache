@@ -53,7 +53,7 @@ manipulation through the CLI.
 ## Synchronize a cacheable filesystem
 
 ```
-gcs-cache cached-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --cache-name=npm-packages --checksum-file=package.json "--cacheable-command=npm install" node_modules
+gcs-cache cached-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --cache-name=npm-packages --checksum-file=package.json "--cacheable-command=npm install" node_modules:node_modules
 ```
 
 This will :
@@ -67,7 +67,7 @@ This will :
 ## Put filesystem into the cache
 
 ```
-gcs-cache store-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --cache-name=my-cache directory1 directory2
+gcs-cache store-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --cache-name=my-cache directory1:directory1 directory2:./path/to/directory2
 ```
 
 This will store `directory1` and `directory2` contents into cache `my-cache` for branch `my-branch` in app `my-app`
@@ -78,7 +78,7 @@ You can avoid passing any directory: in that case, the whole **current** directo
 ## Get filesystem from the cache
 
 ```
-gcs-cache load-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --cache-name=my-cache directory1 directory2
+gcs-cache load-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --cache-name=my-cache directory1:directory1 directory2:./path/to/directory2
 ```
 
 This will load `directory1` and `directory2` content from cache `my-cache` for branch `my-branch` in app `my-appp`
@@ -86,6 +86,20 @@ into current directory's `directory1` and `directory2`
 
 You can avoid passing any directory: in that case, the special `__all__` cache content will be
 put into current directory.
+
+## Nameable directories
+
+Whenever you provide directories to `cached-fs` / `store-fs` / `load-fs` commands, those directories are
+"named" directories, following format `content-name:directory-path`
+
+When `content-name` and `directory-path` are the same, you can shortcut it to simply `directory-path`, meaning that 
+those 2 different commands are the same :
+
+```
+gcs-cache store-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --content-name=my-cache directory1:directory1 directory2:./path/to/directory2
+
+gcs-cache store-fs --bucket-url=gs://my-bucket --app=my-app --branch=my-branch --content-name=my-cache directory1 directory2:./path/to/directory2
+```
 
 
 # Under the hood: Storage spec in gcs

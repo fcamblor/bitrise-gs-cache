@@ -29,14 +29,14 @@ export function cacheableCommand(coords, opts, commandIfOutdatedCache) {
         const cachePersistor = CachePersistor.compressed(cacheMetadata.compressed);
         if (cacheMetadata.checksum && expectedChecksum && cacheMetadata.checksum === expectedChecksum) {
             console.info("Checksum didn't changed ! Loading cache content...");
-            yield Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.loadCache(coords, cachedPath, cachedPath)));
+            yield Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.loadCache(coords, cachedPath)));
             console.info("Cache loaded !");
         }
         else {
             console.info(`${opts.checksumCommand ? 'Detected checksum change, u' : 'U'}pdating cache...`);
             yield cachePersistor.deleteCache(coords);
             yield commandIfOutdatedCache();
-            yield Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.pushCache(coords, cachedPath, cachedPath)));
+            yield Promise.all(opts.cachedPaths.map(cachedPath => cachePersistor.pushCache(coords, cachedPath)));
             yield CachePersistor.storeCacheMetadata(coords, {
                 checksum: expectedChecksum,
                 compressed: !!opts.compressContent,

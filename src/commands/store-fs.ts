@@ -1,22 +1,22 @@
-import {CacheCoordinates, CachePersistor} from "../CachePersistor.js";
+import {CacheCoordinates, CachePersistor, NamedDirectory} from "../CachePersistor.js";
 
 export type StoreFSOptions = {
     coords: CacheCoordinates;
     compressed: boolean;
-    directories: string[];
+    directories: NamedDirectory[];
 };
 
 export async function storeFS(opts: StoreFSOptions) {
     const cachePersistor = CachePersistor.compressed(opts.compressed);
 
     const synchronizeAll = !opts.directories.length;
-    const namedCachedPaths: {pathName: string, path: string}[] = synchronizeAll
-        ?[{pathName: "__all__", path: "."}]
-        :opts.directories.map(dir => ({pathName: dir, path: dir}));
+    const namedCachedPaths = synchronizeAll
+        ?[{name: "__all__", path: "."}]
+        :opts.directories;
 
     await Promise.all(namedCachedPaths.map(ncp => {
-        console.log(`Storing ${ncp.pathName} into cache:${opts.coords.cacheName}`)
-        return cachePersistor.pushCache(opts.coords, ncp.path, ncp.pathName);
+        console.log(`Storing ${ncp.name} into cache:${opts.coords.cacheName}`)
+        return cachePersistor.pushCache(opts.coords, ncp);
     }));
 
     await CachePersistor.storeCacheMetadata(opts.coords, {

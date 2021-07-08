@@ -1,8 +1,8 @@
-import {CacheCoordinates, CachePersistor} from "../CachePersistor.js";
+import {CacheCoordinates, CachePersistor, NamedDirectory} from "../CachePersistor.js";
 
 export type LoadFSOptions = {
     coords: CacheCoordinates;
-    directories: string[];
+    directories: NamedDirectory[];
     onInexistantCache: 'fail'|'warn'|'ignore';
 };
 
@@ -21,14 +21,14 @@ export async function loadFS(opts: LoadFSOptions) {
 
     const cachePersistor = CachePersistor.compressed(cacheMetadata!.compressed);
 
-    const namedCachedPaths: {pathName: string, path: string}[] = cacheMetadata!.all
-        ?[{pathName: "__all__", path: ""}]
-        :opts.directories.map(dir => ({pathName: dir, path: dir}));
+    const namedCachedPaths = cacheMetadata!.all
+        ?[{name: "__all__", path: ""}]
+        :opts.directories;
 
 
     await Promise.all(namedCachedPaths.map(ncp => {
-        console.log(`Loading ${ncp.pathName} from cache:${opts.coords.cacheName}`)
-        return cachePersistor.loadCache(opts.coords, ncp.path, ncp.pathName);
+        console.log(`Loading ${ncp.name} from cache:${opts.coords.cacheName}`)
+        return cachePersistor.loadCache(opts.coords, ncp);
     }));
 
     console.log(`Directories loaded from cache !`)
