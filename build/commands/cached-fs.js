@@ -12,7 +12,7 @@ export function cachedFS(opts) {
     return __awaiter(this, void 0, void 0, function* () {
         yield cacheableCommand(opts.coords, {
             compressContent: opts.compressed,
-            checksumCommand: () => $ `md5 -q "${opts.checksumFile}"`,
+            checksumCommand: () => $ `md5sum "${opts.checksumFile}" | cut -d ' ' -f1`,
             cachedPaths: opts.directories
         }, () => {
             const [command, ...args] = opts.cacheableCommand.split(" ");
