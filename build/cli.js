@@ -99,6 +99,10 @@ yargs(hideBin(process.argv))
         type: 'string',
         demandOption: true,
         describe: 'command to execute to reproduce cache when it gets invalidated'
+    }, 'root-dir': {
+        type: 'string',
+        demandOption: false,
+        describe: 'root directory from where cacheable-command is executed'
     }, 'skip-compress': {
         type: 'boolean',
         describe: 'avoids compressing files prior to sending it in store'
@@ -114,6 +118,7 @@ yargs(hideBin(process.argv))
     yield cachedFS({
         coords, compressed, directories,
         checksumFile: argv["checksum-file"],
-        cacheableCommand: argv["cacheable-command"]
+        cacheableCommand: argv["cacheable-command"],
+        rootDir: argv["root-dir"]
     });
 })).help().argv;

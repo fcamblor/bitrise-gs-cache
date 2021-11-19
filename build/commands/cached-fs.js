@@ -12,12 +12,24 @@ export function cachedFS(opts) {
     return __awaiter(this, void 0, void 0, function* () {
         yield cacheableCommand(opts.coords, {
             compressContent: opts.compressed,
-            checksumCommand: () => $ `md5sum "${opts.checksumFile}" | cut -d ' ' -f1`,
+            checksumCommand: () => $ `md5sum ${opts.checksumFile} | cut -d ' ' -f1`,
             cachedPaths: opts.directories
         }, () => {
-            const [command, ...args] = opts.cacheableCommand.split(" ");
-            console.info(`Executing cacheable command: ${command} ${args}`);
-            return $ `${command} ${args}`;
+            return opts.cacheableCommand.split("&&").reduce((previousPromise, commandStr) => __awaiter(this, void 0, void 0, function* () {
+                yield previousPromise;
+                let startingDir = undefined;
+                if (opts.rootDir) {
+                    startingDir = yield $ `pwd`.then(res => res.stdout.trim());
+                    cd(opts.rootDir);
+                }
+                const [command, ...args] = commandStr.trim().split(" ");
+                console.info(`Executing cacheable command ${opts.rootDir ? `(from ${opts.rootDir}) ` : ""}: ${command} ${args}`);
+                const result = yield $ `${command} ${args}`;
+                if (startingDir) {
+                    cd(startingDir);
+                }
+                return result;
+            }), Promise.resolve(undefined));
         });
     });
 }
