@@ -7,7 +7,7 @@ export type CacheableCommandOptions = {
     checksumCommand?: () => ProcessPromise<ProcessOutput>
 };
 
-export async function cacheableCommand(coords: CacheCoordinates, opts: CacheableCommandOptions, commandIfOutdatedCache: () => ProcessPromise<ProcessOutput>) {
+export async function cacheableCommand(coords: CacheCoordinates, opts: CacheableCommandOptions, commandIfOutdatedCache: () => Promise<any>) {
     let cacheMetadata: CacheMetadata|undefined = undefined, expectedChecksum = undefined;
     // With cached-fs, we cannot cache "everything", we systematically need some cachedPaths
     const synchronizeAll = false;
@@ -21,7 +21,7 @@ export async function cacheableCommand(coords: CacheCoordinates, opts: Cacheable
             const expectedChecksumContent = await opts.checksumCommand();
             expectedChecksum = expectedChecksumContent.stdout.trim();
         }
-        catch(e) {
+        catch(e: any) {
             throw new Error(`No expected checksum were calculated: ${e.toString()}`);
         }
     }
