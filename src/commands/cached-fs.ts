@@ -13,7 +13,7 @@ export type CachedFSOptions = {
 export async function cachedFS(opts: CachedFSOptions) {
     await cacheableCommand(opts.coords, {
         compressContent: opts.compressed,
-        checksumCommand: () => $`md5sum "${opts.checksumFile}" | cut -d ' ' -f1`,
+        checksumCommand: () => $`md5sum ${opts.checksumFile} | cut -d ' ' -f1`,
         cachedPaths: opts.directories
     }, () => {
         const [command, ...args] = opts.cacheableCommand.split(" ");
