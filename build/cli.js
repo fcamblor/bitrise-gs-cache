@@ -15,6 +15,7 @@ import { auth } from "./commands/auth.js";
 import { storeFS } from "./commands/store-fs.js";
 import { loadFS } from "./commands/load-fs.js";
 import { cachedFS } from "./commands/cached-fs.js";
+import { fsExists } from "./commands/fs-exists.js";
 const cacheCoordsOptions = {
     'bucket-url': {
         type: 'string',
@@ -91,6 +92,16 @@ yargs(hideBin(process.argv))
     yield loadFS({
         coords, directories, onInexistantCache
     });
+})).command("fs-exists", 'Tells if a cache coordinate exists or not', (yargs) => yargs.options(cacheCoordsOptions), (argv) => __awaiter(void 0, void 0, void 0, function* () {
+    const coords = coordsFromOpts(argv);
+    const exists = yield fsExists({ coords });
+    if (exists) {
+        console.log("Cache exists !");
+    }
+    else {
+        console.error(`Cache for coords ${JSON.stringify(coords)} doesn't exist !`);
+        process.exit(1);
+    }
 })).command("cached-fs [nameableDirectories..]", 'Either loads cached filesystem or rebuild it from scratch based on a checksum', (yargs) => yargs.options(Object.assign(Object.assign({}, cacheCoordsOptions), { 'checksum-file': {
         type: 'string',
         demandOption: true,
