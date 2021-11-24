@@ -104,8 +104,12 @@ yargs(hideBin(process.argv))
     }
 })).command("cached-fs [nameableDirectories..]", 'Either loads cached filesystem or rebuild it from scratch based on a checksum', (yargs) => yargs.options(Object.assign(Object.assign({}, cacheCoordsOptions), { 'checksum-file': {
         type: 'string',
-        demandOption: true,
+        demandOption: false,
         describe: 'path to file used to guess if cache can be retrieved as is or if it should be invalidated'
+    }, 'checksum-value': {
+        type: 'string',
+        demandOption: false,
+        describe: 'hardcoded checksum value used to guess if cache can be retrieved as is or if it should be invalidated'
     }, 'cacheable-command': {
         type: 'string',
         demandOption: true,
@@ -121,6 +125,9 @@ yargs(hideBin(process.argv))
     if (!argv['nameableDirectories'] || argv['nameableDirectories'].length === 0) {
         throw new Error("At least 1 directory must be provided !");
     }
+    if (!argv['checksum-file'] && !argv['checksum-value']) {
+        throw new Error("Either checksum-file or checksum-value needs to be provided");
+    }
     return true;
 }), (argv) => __awaiter(void 0, void 0, void 0, function* () {
     const coords = coordsFromOpts(argv);
@@ -129,6 +136,7 @@ yargs(hideBin(process.argv))
     yield cachedFS({
         coords, compressed, directories,
         checksumFile: argv["checksum-file"],
+        checksumValue: argv["checksum-value"],
         cacheableCommand: argv["cacheable-command"],
         rootDir: argv["root-dir"]
     });

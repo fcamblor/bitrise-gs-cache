@@ -19,8 +19,7 @@ export function cacheableCommand(coords, opts, commandIfOutdatedCache) {
         }
         if (opts.checksumCommand) {
             try {
-                const expectedChecksumContent = yield opts.checksumCommand();
-                expectedChecksum = expectedChecksumContent.stdout.trim();
+                expectedChecksum = yield opts.checksumCommand();
             }
             catch (e) {
                 throw new Error(`No expected checksum were calculated: ${e.toString()}`);

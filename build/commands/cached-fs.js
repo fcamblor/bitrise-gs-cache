@@ -8,11 +8,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { cacheableCommand } from "../cacheableCommand.js";
+function checksumCommandFor(opts) {
+    if (opts.checksumFile) {
+        return () => __awaiter(this, void 0, void 0, function* () { return (yield $ `md5sum ${opts.checksumFile} | cut -d ' ' -f1`).stdout.trim(); });
+    }
+    else if (opts.checksumValue) {
+        return () => Promise.resolve(opts.checksumValue);
+    }
+    else {
+        throw new Error(`Invalid opts for checksumCommand creation: ${JSON.stringify(opts)}`);
+    }
+}
 export function cachedFS(opts) {
     return __awaiter(this, void 0, void 0, function* () {
         yield cacheableCommand(opts.coords, {
             compressContent: opts.compressed,
-            checksumCommand: () => $ `md5sum ${opts.checksumFile} | cut -d ' ' -f1`,
+            checksumCommand: checksumCommandFor(opts),
             cachedPaths: opts.directories
         }, () => {
             return opts.cacheableCommand.split("&&").reduce((previousPromise, commandStr) => __awaiter(this, void 0, void 0, function* () {
