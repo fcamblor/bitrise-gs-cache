@@ -124,8 +124,13 @@ yargs(hideBin(process.argv))
             ...cacheCoordsOptions,
             'checksum-file': {
                 type: 'string',
-                demandOption: true,
+                demandOption: false,
                 describe: 'path to file used to guess if cache can be retrieved as is or if it should be invalidated'
+            },
+            'checksum-value': {
+                type: 'string',
+                demandOption: false,
+                describe: 'hardcoded checksum value used to guess if cache can be retrieved as is or if it should be invalidated'
             },
             'cacheable-command': {
                 type: 'string',
@@ -145,6 +150,9 @@ yargs(hideBin(process.argv))
             if(!argv['nameableDirectories'] || (argv['nameableDirectories'] as string[]).length===0) {
                 throw new Error("At least 1 directory must be provided !")
             }
+            if(!argv['checksum-file'] && !argv['checksum-value']) {
+                throw new Error("Either checksum-file or checksum-value needs to be provided")
+            }
             return true;
         }), async (argv) => {
             const coords = coordsFromOpts(argv);
@@ -153,9 +161,10 @@ yargs(hideBin(process.argv))
 
             await cachedFS({
                 coords, compressed, directories,
-                checksumFile: argv["checksum-file"],
-                cacheableCommand: argv["cacheable-command"],
-                rootDir: argv["root-dir"]
+                checksumFile: argv["checksum-file"] as string|undefined,
+                checksumValue: argv["checksum-value"] as string|undefined,
+                cacheableCommand: argv["cacheable-command"] as string,
+                rootDir: argv["root-dir"] as string
             });
         }
     ).help().argv

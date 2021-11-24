@@ -5,16 +5,27 @@ import {CacheCoordinates, NamedDirectory} from "../CachePersistor.js";
 export type CachedFSOptions = {
     coords: CacheCoordinates;
     compressed: boolean;
-    checksumFile: string;
+    checksumFile?: string;
+    checksumValue?: string;
     cacheableCommand: string;
     rootDir?: string;
     directories: NamedDirectory[];
 };
 
+function checksumCommandFor(opts: CachedFSOptions): () => Promise<string> {
+    if(opts.checksumFile) {
+        return async () =>  (await $`md5sum ${opts.checksumFile} | cut -d ' ' -f1`).stdout.trim()
+    } else if(opts.checksumValue) {
+        return () =>  Promise.resolve(opts.checksumValue!)
+    } else {
+        throw new Error(`Invalid opts for checksumCommand creation: ${JSON.stringify(opts)}`);
+    }
+}
+
 export async function cachedFS(opts: CachedFSOptions) {
     await cacheableCommand(opts.coords, {
         compressContent: opts.compressed,
-        checksumCommand: () => $`md5sum ${opts.checksumFile} | cut -d ' ' -f1`,
+        checksumCommand: checksumCommandFor(opts),
         cachedPaths: opts.directories
     }, () => {
         return opts.cacheableCommand.split("&&").reduce(async (previousPromise, commandStr) => {

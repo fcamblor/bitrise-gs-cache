@@ -4,7 +4,7 @@ import {CacheCoordinates, CacheMetadata, CachePersistor, NamedDirectory} from ".
 export type CacheableCommandOptions = {
     cachedPaths: NamedDirectory[],
     compressContent?: boolean,
-    checksumCommand?: () => ProcessPromise<ProcessOutput>
+    checksumCommand?: () => Promise<string>
 };
 
 export async function cacheableCommand(coords: CacheCoordinates, opts: CacheableCommandOptions, commandIfOutdatedCache: () => Promise<any>) {
@@ -18,8 +18,7 @@ export async function cacheableCommand(coords: CacheCoordinates, opts: Cacheable
 
     if(opts.checksumCommand) {
         try {
-            const expectedChecksumContent = await opts.checksumCommand();
-            expectedChecksum = expectedChecksumContent.stdout.trim();
+            expectedChecksum = await opts.checksumCommand();
         }
         catch(e: any) {
             throw new Error(`No expected checksum were calculated: ${e.toString()}`);
