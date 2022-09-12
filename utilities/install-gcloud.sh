@@ -2,8 +2,8 @@
 
 # Installing gcloud utilities
 # see https://discuss.bitrise.io/t/add-google-cloud-cli-gcloud-gsutil-to-mac-stacks/8581/9
-GCLOUD_VERSION=${1:-347.0.0}
-BIN_DIR=$2
+BIN_DIR=$1
+GCLOUD_VERSION=${2:-347.0.0}
 GCLOUD_INSTALL_DIR=${3:-$HOME/tools/gcloud}
 
 mkdir -p $GCLOUD_INSTALL_DIR && cd $GCLOUD_INSTALL_DIR
