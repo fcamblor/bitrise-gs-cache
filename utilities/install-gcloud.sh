@@ -2,18 +2,19 @@
 
 # Installing gcloud utilities
 # see https://discuss.bitrise.io/t/add-google-cloud-cli-gcloud-gsutil-to-mac-stacks/8581/9
-BIN_DIR=$1
-GCLOUD_INSTALL_DIR=${2:-$HOME/tools/gcloud}
+GCLOUD_VERSION=${1:-347.0.0}
+BIN_DIR=$2
+GCLOUD_INSTALL_DIR=${3:-$HOME/tools/gcloud}
 
 mkdir -p $GCLOUD_INSTALL_DIR && cd $GCLOUD_INSTALL_DIR
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     # Linux
-    wget -q https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-347.0.0-linux-x86_64.tar.gz
-    tar -xzf google-cloud-sdk-347.0.0-linux-x86_64.tar.gz
+    wget -q https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-$GCLOUD_VERSION-linux-x86_64.tar.gz
+    tar -xzf google-cloud-sdk-$GCLOUD_VERSION-linux-x86_64.tar.gz
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     # Mac OSX
-    wget -q https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-347.0.0-darwin-x86_64.tar.gz
-    tar -xzf google-cloud-sdk-347.0.0-darwin-x86_64.tar.gz
+    wget -q https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-$GCLOUD_VERSION-darwin-x86_64.tar.gz
+    tar -xzf google-cloud-sdk-$GCLOUD_VERSION-darwin-x86_64.tar.gz
 else
     echo "Unsupported OS: $OSTYPE"
     exit -1
